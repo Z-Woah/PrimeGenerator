@@ -14,8 +14,16 @@ func worker(startNum int, stopNum int, checkNum int, c chan bool) {
 }
 
 func isPrime(num int) bool {
+
+	switch num {
+	case 1:
+		return false
+	case 2:
+		return true
+	}
+
 	//make sure num % 2 != 0
-	if num%2 == 0 {
+	if num%2 == 0 || num%5 == 0 {
 		return false
 	} // Remove else statement, it is not really needed and helps save indentation space
 
@@ -23,18 +31,17 @@ func isPrime(num int) bool {
 	var firstHalf int = numHalfed / 2
 	var secondHalf int = numHalfed - firstHalf
 
-	c1 := make(chan bool)
-	c2 := make(chan bool)
+	channel := make(chan bool)
 
 	// Worker for first half
-	go worker(1, firstHalf, num, c1)
+	go worker(1, firstHalf, num, channel)
 	// Worker for second half
-	go worker(secondHalf, numHalfed, num, c2)
+	go worker(secondHalf, numHalfed, num, channel)
 
-	resp1 := <-c1
-	resp2 := <-c2
+	//resp1 := <-c1
+	//resp2 := <-c2
 
-	return resp1 && resp2
+	return <-channel && <-channel
 
 }
 
@@ -43,17 +50,9 @@ func main() {
 
 	for {
 
-		switch counter {
-		case 1:
-			fallthrough
-		case 2:
+		//checking if the number is prime; print if true
+		if isPrime(counter) {
 			fmt.Println(counter)
-		default:
-
-			//checking if the number is prime; print if true
-			if isPrime(counter) {
-				fmt.Println(counter)
-			}
 		}
 		counter++
 	}
